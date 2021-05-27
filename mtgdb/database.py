@@ -1,6 +1,6 @@
 import sqlite3
 
-import mtgdb.card_lookup
+from card_lookup import Card
 
 class SearchResult:
     def __init__(card, count):

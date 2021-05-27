@@ -1,7 +1,7 @@
 import argparse
 
-import mtgdb.card_lookup
-import mtgdb.database
+import card_lookup
+import database
 
 def parse_args():
     parser = argparse.ArgumentParser()
