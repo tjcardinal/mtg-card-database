@@ -1,9 +1,11 @@
-import mtgdb.card_lookup
+import mtgdb.card
 import mtgdb.database
+import mtgdb.lookup
 import mtgdb.mtgdb
 
 __all__ = [
-        "card_lookup",
+        "card",
         "database",
+        "lookup",
         "mtgdb",
         ]

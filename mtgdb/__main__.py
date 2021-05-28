@@ -1,3 +1,3 @@
-import mtgdb
+import mtgdb.mtgdb
 
 mtgdb.main()

@@ -1,7 +1,8 @@
 import argparse
 
-import card_lookup
-import database
+from mtgdb.card import Card 
+from mtgdb.database import Database
+from mtgdb.lookup import lookup
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -16,24 +17,24 @@ def parse_args():
     return args
 
 def add(set_code, collector_number, foil, count):
-    card = card_lookup.lookup(set_code, collector_number, foil)
+    card = lookup(set_code, collector_number, foil)
     result = database.add(card, count)
     print(f"Added {count} {card}")
     print(result)
 
 def remove(set_code, collector_number, foil, count):
-    card = card_lookup.lookup(set_code, collector_number, foil)
+    card = lookup(set_code, collector_number, foil)
     result = database.remove(card, count)
     print(f"Removed {count} {card}")
     print(result)
 
 def update(set_code, collector_number, foil):
-    card = card_lookup.lookup(set_code, collector_number, foil)
+    card = lookup(set_code, collector_number, foil)
     result = database.add(card)
     print(result)
 
 def search(set_code, collector_number, foil):
-    card = card_lookup.lookup(set_code, collector_number, foil)
+    card = lookup(set_code, collector_number, foil)
     result = database.search(card)
     print(result)
 
