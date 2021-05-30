@@ -6,14 +6,15 @@ import mtgdb.lookup
 
 def parse_args():
     parser = argparse.ArgumentParser(prog="mtgdb")
-    parser.add_argument("-f", "--foil", action="store_true")
+    parser.add_argument("--foil", "-f", action="store_true")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--add", "-a", nargs=3, metavar=("SET", "NUM", "COUNT"))
     group.add_argument("--remove", "-r", nargs=3, metavar=("SET", "NUM", "COUNT"))
     group.add_argument("--update", "-u", nargs=2, metavar=("SET", "NUM"))
     group.add_argument("--search", "-s", nargs=2, metavar=("SET", "NUM"))
+    parser.add_argument("--csv", "-c", action="store_true")
     args = parser.parse_args()
-    assert 1 == sum(arg != None for arg in (args.add, args.remove, args.update, args.search))
+    assert 1 == sum(arg is not None for arg in (args.add, args.remove, args.update, args.search))
     return args
 
 def add(db, set_code, collector_number, foil, count):
@@ -41,17 +42,18 @@ def main():
 
     db = mtgdb.database.Database("mtgdb.db")
 
-    if args.add != None:
+    if args.add is not None:
         add(db, args.add[0], args.add[1], args.foil, int(args.add[2]))
-    elif args.remove != None:
+    elif args.remove is not None:
         remove(db, args.remove[0], args.remove[1], args.foil, int(args.remove[2]))
-    elif args.update != None:
+    elif args.update is not None:
         update(db, args.update[0], args.update[1], args.foil)
-    elif args.search != None:
+    elif args.search is not None:
         search(db, args.search[0], args.search[1], args.foil)
     else:
         # Should never happen. parse_args should require at least one
         print("No operation selected")
-        assert any(arg != None for arg in (args.add, args.remove, args.update, args.search))
+        assert any(arg is not None for arg in (args.add, args.remove, args.update, args.search))
 
-    db.to_csv()
+    if args.csv is not None:
+        db.to_csv()
