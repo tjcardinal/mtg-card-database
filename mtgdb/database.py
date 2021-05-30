@@ -21,9 +21,9 @@ class Database:
                              collector_number TEXT NOT NULL,
                              foil INTEGER NOT NULL,
                              name TEXT NOT NULL,
-                             count INTEGER NOT NULL,
-                             price REAL NOT NULL,
-                             prev_price REAL NOT NULL,
+                             count INTEGER NOT NULL CHECK (count > 0),
+                             price REAL NOT NULL CHECK (price > 0),
+                             prev_price REAL NOT NULL CHECK (prev_price > 0),
                              price_diff REAL NOT NULL,
                              PRIMARY KEY(set_code,
                                          collector_number,
@@ -34,6 +34,7 @@ class Database:
         self.con.close()
 
     def add(self, card, count):
+        assert card is not None
         assert count > 0
         search = self.search(card)
         if search is not None:
@@ -50,9 +51,10 @@ class Database:
         elif search is None:
             self.con.execute("INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                              (card.set_code, card.collector_number, card.foil,
-                              card.name, count, card.price, 0, 0))
+                              card.name, count, card.price, card.price, 0))
 
     def remove(self, card, count):
+        assert card is not None
         assert count > 0
         search = self.search(card)
         if search is None:
@@ -77,6 +79,7 @@ class Database:
                               card.foil))
 
     def update(self, card):
+        assert card is not None
         self.con.execute("""Update cards
                             SET price=?, prev_price=price, price_diff=?-price
                             WHERE set_code=?
@@ -87,6 +90,7 @@ class Database:
                           card.foil))
 
     def search(self, card):
+        assert card is not None
         cur = self.con.execute("""SELECT set_code, collector_number, foil,
                                          name, count, price
                                   FROM cards
@@ -100,9 +104,9 @@ class Database:
             return None
         else:
             return SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
-                                          result[3], result[5]),
+                                                result[3], result[5]),
                                 result[4])
-    def to_csv(self):
+    def make_csv(self):
         with open("mtgdb.csv", 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, dialect="excel")
             for row in self.con.execute("SELECT * FROM cards"):

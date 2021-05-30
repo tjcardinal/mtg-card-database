@@ -7,18 +7,25 @@ import mtgdb.lookup
 def parse_args():
     parser = argparse.ArgumentParser(prog="mtgdb")
     parser.add_argument("--foil", "-f", action="store_true")
+    parser.add_argument("--csv", "-c", action="store_true")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--add", "-a", nargs=3, metavar=("SET", "NUM", "COUNT"))
     group.add_argument("--remove", "-r", nargs=3, metavar=("SET", "NUM", "COUNT"))
     group.add_argument("--update", "-u", nargs=2, metavar=("SET", "NUM"))
     group.add_argument("--search", "-s", nargs=2, metavar=("SET", "NUM"))
-    parser.add_argument("--csv", "-c", action="store_true")
+    group.add_argument("--update-all", action="store_const", const=True)
     args = parser.parse_args()
-    assert 1 == sum(arg is not None for arg in (args.add, args.remove, args.update, args.search))
+    assert 1 == sum(arg is not None for arg in (args.add, args.remove,
+                                                args.update, args.search,
+                                                args.update_all))
     return args
 
 def add(db, set_code, collector_number, foil, count):
-    card = mtgdb.lookup.lookup(set_code, collector_number, foil)
+    try:
+        card = mtgdb.lookup.lookup(set_code, collector_number, foil)
+    except mtgdb.lookup.LookupError as e:
+       print(e) 
+       return
     db.add(card, count)
     print(f"Added {count} {card}")
 
@@ -37,6 +44,9 @@ def search(db, set_code, collector_number, foil):
     result = db.search(card)
     print(result)
 
+def update_all():
+    pass
+
 def main():
     args = parse_args()
 
@@ -50,10 +60,12 @@ def main():
         update(db, args.update[0], args.update[1], args.foil)
     elif args.search is not None:
         search(db, args.search[0], args.search[1], args.foil)
+    elif args.update_all is not None:
+        update_all()
     else:
         # Should never happen. parse_args should require at least one
         print("No operation selected")
         assert any(arg is not None for arg in (args.add, args.remove, args.update, args.search))
 
     if args.csv is not None:
-        db.to_csv()
+        db.make_csv()
