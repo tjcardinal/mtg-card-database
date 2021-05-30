@@ -1,4 +1,4 @@
-from mtgdb import app
+import mtgdb.app
 
 if __name__ == "__main__":
-    app.main()
+    mtgdb.app.main()

@@ -1,1 +1,1 @@
-from mtgdb import mtgdb
+from mtgdb import app

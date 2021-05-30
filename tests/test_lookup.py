@@ -6,7 +6,7 @@ def test_foil():
     assert "211" == card.collector_number
     assert True == card.foil
     assert "Manamorphose" == card.name
-    assert 0 < float(card.price)
+    assert 0 < card.price
 
 def test_non_foil():
     card = lookup.lookup("shm", "211", False)
@@ -14,7 +14,7 @@ def test_non_foil():
     assert "211" == card.collector_number
     assert False == card.foil
     assert "Manamorphose" == card.name
-    assert 0 < float(card.price)
+    assert 0 < card.price
 
 def test_non_integer_set_code():
     card = lookup.lookup("ust", "49d", True)
@@ -22,7 +22,7 @@ def test_non_integer_set_code():
     assert "49d" == card.collector_number
     assert True == card.foil
     assert "Very Cryptic Command" == card.name
-    assert 0 < float(card.price)
+    assert 0 < card.price
 
 def test_invalid_set_code():
     card = lookup.lookup("abc", "211", True)

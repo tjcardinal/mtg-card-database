@@ -1,14 +1,13 @@
+import csv
+from dataclasses import dataclass
 import sqlite3
 
-from mtgdb import card
+import mtgdb.card 
 
+@dataclass
 class SearchResult:
-    def __init__(self, card, count):
-        self.card = card
-        self.count = count
-
-    def __repr__(self):
-        return str(self.__dict__)
+    card: mtgdb.card.Card
+    count: int
 
 class Database:
     def __init__(self, filename):
@@ -18,26 +17,93 @@ class Database:
         if cur.fetchone()[0] == 0:
             print(f"Creating table 'cards' in database '{filename}'")
         self.con.execute("""CREATE TABLE IF NOT EXISTS cards
-                            (scryfall_id TEXT NOT NULL, is_foil INTEGER NOT NULL,
-                             name TEXT NOT NULL, set_code TEXT NOT NULL,
+                            (set_code TEXT NOT NULL,
                              collector_number TEXT NOT NULL,
-                             price REAL, prev_price REAL,
-                             price_diff REAL, count INTEGER NOT NULL,
-                             PRIMARY KEY(scryfall_id, is_foil))""")
+                             foil INTEGER NOT NULL,
+                             name TEXT NOT NULL,
+                             count INTEGER NOT NULL,
+                             price REAL NOT NULL,
+                             prev_price REAL NOT NULL,
+                             price_diff REAL NOT NULL,
+                             PRIMARY KEY(set_code,
+                                         collector_number,
+                                         foil))""")
 
     def __del__(self):
         self.con.commit()
         self.con.close()
 
     def add(self, card, count):
-        pass
+        assert count > 0
+        search = self.search(card)
+        if search is not None:
+            self.con.execute("""UPDATE cards
+                                SET count=count+?,
+                                    price=?, prev_price=price,
+                                    price_diff=?-price
+                                WHERE set_code=?
+                                      AND collector_number=?
+                                      AND foil=?""", 
+                             (count, card.price, card.price,
+                              card.set_code, card.collector_number,
+                              card.foil))
+        elif search is None:
+            self.con.execute("INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                             (card.set_code, card.collector_number, card.foil,
+                              card.name, count, card.price, 0, 0))
 
     def remove(self, card, count):
-        pass
+        assert count > 0
+        search = self.search(card)
+        if search is None:
+            return
+        if count >= search.count:
+            self.con.execute("""DELETE FROM cards
+                                WHERE set_code=?
+                                      AND collector_number=?
+                                      AND foil=?""",
+                                (card.set_code, card.collector_number,
+                                 card.foil))
+        elif count < search.count:
+             self.con.execute("""UPDATE cards
+                                SET count=count-?,
+                                    price=?, prev_price=price,
+                                    price_diff=?-price
+                                WHERE set_code=?
+                                      AND collector_number=?
+                                      AND foil=?""", 
+                             (count, card.price, card.price,
+                              card.set_code, card.collector_number,
+                              card.foil))
 
     def update(self, card):
-        pass
+        self.con.execute("""Update cards
+                            SET price=?, prev_price=price, price_diff=?-price
+                            WHERE set_code=?
+                                  AND collector_number=?
+                                  AND foil=?""",
+                         (card.price, card.price,
+                          card.set_code, card.collector_number,
+                          card.foil))
 
     def search(self, card):
-        pass
-
+        cur = self.con.execute("""SELECT set_code, collector_number, foil,
+                                         name, count, price
+                                  FROM cards
+                                  WHERE set_code=?
+                                        AND collector_number=?
+                                        AND foil=?""",
+                               (card.set_code, card.collector_number,
+                                card.foil))
+        result = cur.fetchone()
+        if result is None:
+            return None
+        else:
+            return SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
+                                          result[3], result[5]),
+                                result[4])
+    def to_csv(self):
+        with open("mtgdb.csv", 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, dialect="excel")
+            for row in self.con.execute("SELECT * FROM cards"):
+                writer.writerow(row)

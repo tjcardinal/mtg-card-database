@@ -2,7 +2,7 @@ import time
 
 import scrython
 
-from mtgdb import card
+import mtgdb.card
 
 def lookup(set_code, collector_number, foil):
 
@@ -18,5 +18,5 @@ def lookup(set_code, collector_number, foil):
         mode = "usd_foil"
     else:
         mode = "usd"
-    return card.Card(found.set_code(), found.collector_number(), foil,
-                     found.name(), found.prices(mode))
+    return mtgdb.card.Card(found.set_code(), found.collector_number(), foil,
+                     found.name(), float(found.prices(mode)))
