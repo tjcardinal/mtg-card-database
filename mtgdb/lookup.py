@@ -1,13 +1,11 @@
 import time
+from typing import Optional
 
-import scrython
+import scrython #type: ignore
 
 import mtgdb.card
 
-class LookupError(Exception):
-    pass
-
-def lookup(set_code, collector_number, foil):
+def lookup(set_code: str, collector_number: str, foil: bool) -> Optional[mtgdb.card.Card]:
     time.sleep(0.1)
     try:
         found = scrython.cards.Collector(code=set_code,
@@ -17,6 +15,7 @@ def lookup(set_code, collector_number, foil):
         else:
             mode = "usd"
         return mtgdb.card.Card(found.set_code(), found.collector_number(), foil,
-                         found.name(), float(found.prices(mode)))
+                               found.name(), float(found.prices(mode)))
     except Exception as e:
-        raise LookupError from e
+        print(e)
+        return None

@@ -4,7 +4,7 @@ import mtgdb.card
 import mtgdb.database
 import mtgdb.lookup
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="mtgdb")
     parser.add_argument("--foil", "-f", action="store_true")
     parser.add_argument("--csv", "-c", action="store_true")
@@ -15,39 +15,53 @@ def parse_args():
     group.add_argument("--search", "-s", nargs=2, metavar=("SET", "NUM"))
     group.add_argument("--update-all", action="store_const", const=True)
     args = parser.parse_args()
+
+    if ((args.add is not None and int(args.add[2]) <= 0) or
+        (args.remove is not None and int(args.remove[2]) <= 0)):
+        parser.error("COUNT must be >0")
+
     assert 1 == sum(arg is not None for arg in (args.add, args.remove,
                                                 args.update, args.search,
                                                 args.update_all))
+
     return args
 
-def add(db, set_code, collector_number, foil, count):
-    try:
-        card = mtgdb.lookup.lookup(set_code, collector_number, foil)
-    except mtgdb.lookup.LookupError as e:
-       print(e) 
-       return
-    db.add(card, count)
-    print(f"Added {count} {card}")
-
-def remove(db, set_code, collector_number, foil, count):
+def add(db: mtgdb.database.Database, set_code: str, collector_number: str, foil: bool, count: int) -> None:
     card = mtgdb.lookup.lookup(set_code, collector_number, foil)
-    db.remove(card, count)
-    print(f"Removed {count} {card}")
+    if card is not None:
+        db.add(card, count)
+        print(f"Added {count} {card}")
+    else:
+        print("Lookup failed")
 
-def update(db, set_code, collector_number, foil):
+def remove(db: mtgdb.database.Database, set_code: str, collector_number: str, foil: bool, count: int) -> None:
     card = mtgdb.lookup.lookup(set_code, collector_number, foil)
-    db.update(card)
-    print(f"updated {card}")
+    if card is not None:
+        db.remove(card, count)
+        print(f"Removed {count} {card}")
+    else:
+        print("Lookup failed")
 
-def search(db, set_code, collector_number, foil):
+def update(db: mtgdb.database.Database, set_code: str, collector_number: str, foil: bool) -> None:
     card = mtgdb.lookup.lookup(set_code, collector_number, foil)
-    result = db.search(card)
-    print(result)
+    if card is not None:
+        db.update(card)
+        print(f"updated {card}")
+    else:
+        print("Lookup failed")
 
-def update_all():
+def search(db: mtgdb.database.Database, set_code: str, collector_number: str, foil: bool) -> None:
+    card = mtgdb.lookup.lookup(set_code, collector_number, foil)
+    if card is not None:
+        result = db.search(card)
+        print(result)
+    else:
+        print("Lookup failed")
+
+def update_all() -> None:
     pass
 
-def main():
+def main() -> None:
     args = parse_args()
 
     db = mtgdb.database.Database("mtgdb.db")
@@ -64,7 +78,6 @@ def main():
         update_all()
     else:
         # Should never happen. parse_args should require at least one
-        print("No operation selected")
         assert any(arg is not None for arg in (args.add, args.remove, args.update, args.search))
 
     if args.csv is not None:

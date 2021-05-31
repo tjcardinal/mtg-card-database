@@ -1,6 +1,7 @@
 import csv
 from dataclasses import dataclass
 import sqlite3
+from typing import Optional
 
 import mtgdb.card 
 
@@ -10,7 +11,7 @@ class SearchResult:
     count: int
 
 class Database:
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
         self.con = sqlite3.connect(filename)
         cur = self.con.execute("""SELECT COUNT(*) FROM sqlite_master
                                   WHERE type='table' AND name='cards'""")
@@ -29,11 +30,11 @@ class Database:
                                          collector_number,
                                          foil))""")
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.con.commit()
         self.con.close()
 
-    def add(self, card, count):
+    def add(self, card: mtgdb.card.Card, count: int) -> None:
         assert card is not None
         assert count > 0
         search = self.search(card)
@@ -53,7 +54,7 @@ class Database:
                              (card.set_code, card.collector_number, card.foil,
                               card.name, count, card.price, card.price, 0))
 
-    def remove(self, card, count):
+    def remove(self, card: mtgdb.card.Card, count: int) -> None:
         assert card is not None
         assert count > 0
         search = self.search(card)
@@ -78,7 +79,7 @@ class Database:
                               card.set_code, card.collector_number,
                               card.foil))
 
-    def update(self, card):
+    def update(self, card: mtgdb.card.Card) -> None:
         assert card is not None
         self.con.execute("""Update cards
                             SET price=?, prev_price=price, price_diff=?-price
@@ -89,7 +90,7 @@ class Database:
                           card.set_code, card.collector_number,
                           card.foil))
 
-    def search(self, card):
+    def search(self, card: mtgdb.card.Card) -> Optional[SearchResult]:
         assert card is not None
         cur = self.con.execute("""SELECT set_code, collector_number, foil,
                                          name, count, price
@@ -106,7 +107,7 @@ class Database:
             return SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
                                                 result[3], result[5]),
                                 result[4])
-    def make_csv(self):
+    def make_csv(self) -> None:
         with open("mtgdb.csv", 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, dialect="excel")
             for row in self.con.execute("SELECT * FROM cards"):
