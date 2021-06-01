@@ -1,5 +1,6 @@
 import mtgdb.lookup
 
+# Successful lookups
 def test_foil():
     card = mtgdb.lookup.lookup("shm", "211", True)
     assert "shm" == card.set_code
@@ -32,6 +33,7 @@ def test_non_integer_collector_number():
     assert "Very Cryptic Command" == card.name
     assert 0 < card.price
 
+# Unsuccessful lookups
 def test_invalid_set_code():
     card = mtgdb.lookup.lookup("abc", "211", True)
     assert None == card

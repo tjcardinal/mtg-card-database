@@ -9,6 +9,8 @@ import mtgdb.card
 class SearchResult:
     card: mtgdb.card.Card
     count: int
+    prev_price: float
+    price_diff: float
 
 class Database:
     def __init__(self, filename: str) -> None:
@@ -92,9 +94,7 @@ class Database:
 
     def search(self, card: mtgdb.card.Card) -> Optional[SearchResult]:
         assert card is not None
-        cur = self.con.execute("""SELECT set_code, collector_number, foil,
-                                         name, count, price
-                                  FROM cards
+        cur = self.con.execute("""SELECT * FROM cards
                                   WHERE set_code=?
                                         AND collector_number=?
                                         AND foil=?""",
@@ -106,9 +106,9 @@ class Database:
         else:
             return SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
                                                 result[3], result[5]),
-                                result[4])
-    def make_csv(self) -> None:
-        with open("mtgdb.csv", 'w', newline='') as csvfile:
+                                result[4], result[6], result[7])
+    def make_csv(self, filename) -> None:
+        with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, dialect="excel")
             for row in self.con.execute("SELECT * FROM cards"):
                 writer.writerow(row)

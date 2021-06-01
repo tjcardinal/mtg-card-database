@@ -81,4 +81,4 @@ def main() -> None:
         assert any(arg is not None for arg in (args.add, args.remove, args.update, args.search))
 
     if args.csv is not None:
-        db.make_csv()
+        db.make_csv("mtgdb.csv")
