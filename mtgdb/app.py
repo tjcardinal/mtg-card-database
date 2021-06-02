@@ -58,8 +58,13 @@ def search(db: mtgdb.database.Database, set_code: str, collector_number: str, fo
     else:
         print("Lookup failed")
 
-def update_all() -> None:
-    pass
+def update_all(db: mtgdb.database.Database) -> None:
+    records = db.get_all()
+    for record in records:
+        card = mtgdb.lookup.lookup(record.card.set_code,
+                                   record.card.collector_number, record.card.foil)
+        if card is not None:
+            db.update(card)
 
 def main() -> None:
     args = parse_args()
@@ -75,7 +80,7 @@ def main() -> None:
     elif args.search is not None:
         search(db, args.search[0], args.search[1], args.foil)
     elif args.update_all is not None:
-        update_all()
+        update_all(db)
     else:
         # Should never happen. parse_args should require at least one
         assert any(arg is not None for arg in (args.add, args.remove, args.update, args.search))

@@ -5,6 +5,8 @@ import tempfile
 import mtgdb.card
 import mtgdb.database
 
+directory: tempfile.TemporaryDirectory
+
 # Helper functions
 def create_db_helper() -> mtgdb.database.Database:
     global directory
@@ -243,6 +245,18 @@ def test_searching_nonexistent_card():
     card = create_card_helper()
     found = db.search(card)
     assert found == None
+
+# Get all
+def test_get_all():
+    db = create_db_helper()
+    input_list = []
+    input_list.append(mtgdb.database.SearchResult(mtgdb.card.Card("abc", "123", True, "Test1", 3.21), 1, 3.21, 0.0))
+    input_list.append(mtgdb.database.SearchResult(mtgdb.card.Card("def", "456", False, "Test2", 6.54), 2, 6.54, 0.0))
+    input_list.append(mtgdb.database.SearchResult(mtgdb.card.Card("ghi", "789", True, "Test3", 9.87), 3, 9.87, 0.0))
+    for i in input_list:
+        db.add(i.card, i.count)
+
+    assert input_list == db.get_all()
 
 # CSV
 def test_make_csv():

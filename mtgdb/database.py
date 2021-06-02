@@ -1,7 +1,7 @@
 import csv
 from dataclasses import dataclass
 import sqlite3
-from typing import Optional
+from typing import List, Optional
 
 import mtgdb.card 
 
@@ -107,6 +107,17 @@ class Database:
             return SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
                                                 result[3], result[5]),
                                 result[4], result[6], result[7])
+
+    def get_all(self) -> List[SearchResult]:
+        all_cards = []
+        cur = self.con.execute("SELECT * FROM cards")
+        for result in cur:
+            card =  SearchResult(mtgdb.card.Card(result[0], result[1], result[2],
+                                                result[3], result[5]),
+                                result[4], result[6], result[7])
+            all_cards.append(card)
+        return all_cards
+
     def make_csv(self, filename) -> None:
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, dialect="excel")
