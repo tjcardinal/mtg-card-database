@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# database and csv files
+mtgdb.db
+mtgdb.csv
