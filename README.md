@@ -4,22 +4,22 @@ Creates/queries a database for storing an MTG collection. Stores set code, colle
 
 Operations include: adding cards, removing cards, updating card prices, searching cards, and exporting to csv
 
-# Common usage
+# Common usage examples
 
-Add 4 foil of a card:
+Add 4 foil of a card:\
 mtgdb -af shm 211 4
 
-Remove 2 non-foil of a card:
+Remove 2 non-foil of a card:\
 mtgdb -r shm 211 2
 
-Update prices for a foil card:
+Update prices for a foil card:\
 mtgdb -uf shm 211
 
-Update prices for all cards:
+Update prices for all cards:\
 mtgdb --update-all
 
-Update prices for all cards and export to csv:
+Update prices for all cards and export to csv:\
 mtgdb --update-all -c
 
-Searching for a non-foil card:
+Searching for a non-foil card:\
 mtgdb -s shm 211
