@@ -65,6 +65,8 @@ def update_all(db: mtgdb.database.Database) -> None:
                                    record.card.collector_number, record.card.foil)
         if card is not None:
             db.update(card)
+        else:
+            print("Lookup failed for {record.card}")
 
 def main() -> None:
     args = parse_args()
