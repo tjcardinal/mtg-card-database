@@ -4,6 +4,8 @@ Creates/queries a database for storing an MTG collection. Stores set code, colle
 
 Operations include: adding cards, removing cards, updating card prices, searching cards, and exporting to csv
 
+Database is stored as mtgdb.db and csv is generated as mtgdb.csv
+
 # Common usage examples
 
 Add 4 foil of a card:\
