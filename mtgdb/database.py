@@ -118,7 +118,7 @@ class Database:
             all_cards.append(card)
         return all_cards
 
-    def make_csv(self, filename) -> None:
+    def make_csv(self, filename: str) -> None:
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, dialect="excel")
             for row in self.con.execute("SELECT * FROM cards"):
