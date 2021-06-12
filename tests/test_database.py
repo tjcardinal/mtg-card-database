@@ -7,6 +7,7 @@ import mtgdb.database
 
 directory: tempfile.TemporaryDirectory
 
+
 # Helper functions
 def create_db_helper() -> mtgdb.database.Database:
     global directory
@@ -22,9 +23,10 @@ def create_card_helper() -> mtgdb.card.Card:
 def test_db_creation():
     directory = tempfile.TemporaryDirectory()
     filename = os.path.join(directory.name, "test.db")
-    assert False == os.path.exists(filename)
+    assert os.path.exists(filename) is False
     db = mtgdb.database.Database(filename)
-    assert True == os.path.exists(filename)
+    assert type(db) is mtgdb.database.Database
+    assert os.path.exists(filename) is True
 
 
 # Adding
@@ -130,7 +132,7 @@ def test_removing_one_exactly_card_count():
     db.add(card, 1)
     db.remove(card, 1)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_many_exactly_card_count():
@@ -139,7 +141,7 @@ def test_removing_many_exactly_card_count():
     db.add(card, 5)
     db.remove(card, 5)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_many_over_one_card_count():
@@ -148,7 +150,7 @@ def test_removing_many_over_one_card_count():
     db.add(card, 1)
     db.remove(card, 5)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_many_over_card_count():
@@ -157,7 +159,7 @@ def test_removing_many_over_card_count():
     db.add(card, 2)
     db.remove(card, 5)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_one_nonexistent_card():
@@ -165,7 +167,7 @@ def test_removing_one_nonexistent_card():
     card = create_card_helper()
     db.remove(card, 1)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_many_nonexistent_card():
@@ -173,7 +175,7 @@ def test_removing_many_nonexistent_card():
     card = create_card_helper()
     db.remove(card, 5)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 def test_removing_multiple_different_cards():
@@ -188,9 +190,9 @@ def test_removing_multiple_different_cards():
     db.remove(card2, 2)
     db.remove(card3, 2)
     found = db.search(card1)
-    assert found == None
+    assert found is None
     found = db.search(card2)
-    assert found == None
+    assert found is None
     found = db.search(card3)
     assert found.card == card3
     assert found.count == 1
@@ -211,7 +213,7 @@ def test_updating_lower_price():
     assert found.card == new_card
     assert found.count == 1
     assert found.prev_price == card.price
-    assert True == math.isclose(found.price_diff, -1.23)
+    assert math.isclose(found.price_diff, -1.23) is True
 
 
 def test_updating_higher_price():
@@ -226,7 +228,7 @@ def test_updating_higher_price():
     assert found.card == new_card
     assert found.count == 1
     assert found.prev_price == card.price
-    assert True == math.isclose(found.price_diff, 1.23)
+    assert math.isclose(found.price_diff, 1.23) is True
 
 
 def test_updating_nonexistent_card():
@@ -234,7 +236,7 @@ def test_updating_nonexistent_card():
     card = create_card_helper()
     db.update(card)
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 # Searching
@@ -267,7 +269,7 @@ def test_searching_nonexistent_card():
     db = create_db_helper()
     card = create_card_helper()
     found = db.search(card)
-    assert found == None
+    assert found is None
 
 
 # Get all
@@ -299,13 +301,13 @@ def test_get_all():
 def test_make_csv():
     directory = tempfile.TemporaryDirectory()
     filename = os.path.join(directory.name, "test.csv")
-    assert False == os.path.exists(filename)
+    assert os.path.exists(filename) is False
     db = create_db_helper()
     db.make_csv(filename)
-    assert True == os.path.exists(filename)
+    assert os.path.exists(filename) is True
     assert 0 == os.path.getsize(filename)
     card = create_card_helper()
     db.add(card, 1)
     db.make_csv(filename)
-    assert True == os.path.exists(filename)
+    assert os.path.exists(filename) is True
     assert 0 != os.path.getsize(filename)
